@@ -1,3 +1,4 @@
+import request
 import instaloader
 import telebot
 from telebot import types
@@ -7,8 +8,8 @@ TOKEN = "{BOT_TOKEN}"  # Buraya Telegram botunuzun tokenını ekleyin
 bot = telebot.TeleBot(TOKEN)
 
 # Instagram kullanıcı bilgileri
-INSTAGRAM_USERNAME = "your_instagram_username"  # Kendi Instagram kullanıcı adınızı buraya yazın
-INSTAGRAM_PASSWORD = "your_instagram_password"  # Kendi Instagram şifrenizi buraya yazın
+INSTAGRAM_USERNAME = "{USERNAME}"  # Kendi Instagram kullanıcı adınızı buraya yazın
+INSTAGRAM_PASSWORD = "{PASSWORD}"  # Kendi Instagram şifrenizi buraya yazın
 
 # Instaloader ile oturum açma
 loader = instaloader.Instaloader()
@@ -36,22 +37,6 @@ def start_message(message):
         reply_markup=keyboard
     )
 
-# /story komutu - Hikaye indirme
-@bot.message_handler(commands=['story'])
-def download_story(message):
-    username = message.text.replace("/story", "").strip()
-    if not username:
-        bot.reply_to(message, "Lütfen bir kullanıcı adı belirtin!")
-        return
-
-    bot.reply_to(message, f"{username} adlı kullanıcının hikayeleri indiriliyor...")
-
-    try:
-        loader.download_stories(usernames=[username], filename_target=f"./stories/{username}")
-        bot.reply_to(message, f"{username} adlı kullanıcının hikayeleri başarıyla indirildi!")
-    except Exception as e:
-        bot.reply_to(message, f"Hikaye indirilemedi: {str(e)}")
-
 # /rave komutu - Profil analizi
 @bot.message_handler(commands=['rave'])
 def profile_analysis(message):
@@ -64,6 +49,8 @@ def profile_analysis(message):
 
     try:
         profile = instaloader.Profile.from_username(loader.context, username)
+        
+        # Profil bilgilerini alıyoruz
         info = (
             f"Kullanıcı: {profile.username}\n"
             f"Ad: {profile.full_name}\n"
@@ -73,26 +60,29 @@ def profile_analysis(message):
             f"Gönderiler: {profile.mediacount}\n"
             f"Hesap Gizli mi?: {'Evet' if profile.is_private else 'Hayır'}\n"
         )
-        bot.reply_to(message, info)
+
+        # Profil resmi URL'si
+        profile_picture_url = profile.get_profile_pic_url()
+
+        # Butonlar
+        keyboard = types.InlineKeyboardMarkup()
+        button1 = types.InlineKeyboardButton(text="📸 Story", callback_data=f"story_{username}")
+        button2 = types.InlineKeyboardButton(text="📕 Medya", callback_data=f"media_{username}")
+        button3 = types.InlineKeyboardButton(text="👥 Takipçiler", callback_data=f"followers_{username}")
+        button4 = types.InlineKeyboardButton(text="👤 Takip Ettikleri", callback_data=f"following_{username}")
+
+        keyboard.add(button1, button2, button3, button4)
+
+        # Profil resmi ve bilgi mesajı
+        bot.send_photo(
+            message.chat.id,
+            profile_picture_url,
+            caption=info,
+            reply_markup=keyboard
+        )
+
     except Exception as e:
         bot.reply_to(message, f"Profil analizi yapılamadı: {str(e)}")
-
-# /save komutu - Gönderi indirme
-@bot.message_handler(commands=['save'])
-def download_post(message):
-    post_url = message.text.replace("/save", "").strip()
-    if not post_url:
-        bot.reply_to(message, "Lütfen bir gönderi bağlantısı paylaşın!")
-        return
-
-    bot.reply_to(message, "Medya indiriliyor...")
-
-    try:
-        post = instaloader.Post.from_shortcode(loader.context, post_url.split("/")[-2])
-        loader.download_post(post, target="posts")
-        bot.reply_to(message, "Gönderi başarıyla indirildi!")
-    except Exception as e:
-        bot.reply_to(message, f"Medya indirilemedi: {str(e)}")
 
 # Yardım mesajı
 @bot.callback_query_handler(func=lambda call: call.data == "help")
