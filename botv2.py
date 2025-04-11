@@ -89,10 +89,11 @@ def profile_analysis(message):
 def help_message(call):
     help_text = (
         "Komutlar:\n"
-        "/story - Belirtilen kullanıcı adının hikayelerini indirir.\n"
-        "/rave - Belirtilen profil hakkında analiz yapar.\n"
-        "/save - Bir gönderi bağlantısından medya indirir.\n\n"
-        "Not: Gizli profillerden veri çekebilmek için takip etmelisiniz."
+        "[1] /story : Belirtilen kullanıcı Adının Hikayelerini İndirir.\n\n"
+        "[2] /rave : Belirtilen Profil Hakkında Analiz Yapar.\n\n"
+        "[3] /save : Bir Gönderi Bağlantısından Medya İndirir.\n\n"
+        "[4] /hashtag : Hastag Kazıyıcısıdır Etiketlere Göz At \n"
+        "Not: Gizli Profillerden Veri Çekebilmek İçin Takip Etmelisiniz."
     )
     bot.answer_callback_query(call.id)
     bot.send_message(call.message.chat.id, help_text)
@@ -117,7 +118,8 @@ def hashtag_search(message):
             content = response.text  # Gelen metni alıyoruz
             if content.strip():
                 # Gelen metni anlamlı bir şekilde kullanıcıya iletme
-                bot.reply_to(message, f"Hashtag '{hashtag}' ile ilgili sonuçlar:\n\n{content}")
+                formatted_content = content.replace("<hr>", "<hr><br>")  
+                bot.reply_to(message, f"Hashtag '{hashtag}' ile ilgili sonuçlar:\n\n{formatted_content}")
             else:
                 bot.reply_to(message, "Veri bulunamadı veya yanıt boş.")
         else:
