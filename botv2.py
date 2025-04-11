@@ -89,10 +89,9 @@ def profile_analysis(message):
 def help_message(call):
     help_text = (
         "Komutlar:\n"
-        "[1] /story - Belirtilen kullanıcı adının hikayelerini indirir.\n\n"
-        "[2] /rave - Belirtilen profil hakkında analiz yapar.\n\n"
-        "[3] /save - Bir gönderi bağlantısından medya indirir.\n\n"
-        "[4] /hashtag - Belirtilen hashtag ile ilgili sonuçları getirir.\n\n"
+        "/story - Belirtilen kullanıcı adının hikayelerini indirir.\n"
+        "/rave - Belirtilen profil hakkında analiz yapar.\n"
+        "/save - Bir gönderi bağlantısından medya indirir.\n\n"
         "Not: Gizli profillerden veri çekebilmek için takip etmelisiniz."
     )
     bot.answer_callback_query(call.id)
@@ -114,16 +113,13 @@ def hashtag_search(message):
         
         # API yanıtını kontrol etme
         if response.status_code == 200:
-            try:
-                data = response.json()  # API'den gelen JSON verisini alıyoruz
-                if data.get("success"):
-                    # API'den gelen veriyi mesaj olarak gönderiyoruz
-                    bot.reply_to(message, f"Hashtag '{hashtag}' ile ilgili sonuçlar:\n\n{data.get('data')}")
-                else:
-                    bot.reply_to(message, "Veri bulunamadı.")
-            except ValueError:
-                # JSON verisi alınamadığında
-                bot.reply_to(message, "API'den geçerli bir yanıt alınamadı.")
+            # Eğer yanıt düz metin (HTML veya düz veri) ise
+            content = response.text  # Gelen metni alıyoruz
+            if content.strip():
+                # Gelen metni anlamlı bir şekilde kullanıcıya iletme
+                bot.reply_to(message, f"Hashtag '{hashtag}' ile ilgili sonuçlar:\n\n{content}")
+            else:
+                bot.reply_to(message, "Veri bulunamadı veya yanıt boş.")
         else:
             bot.reply_to(message, "API'ye erişim sağlanamadı. Lütfen tekrar deneyin.")
     except Exception as e:
