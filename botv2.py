@@ -86,6 +86,42 @@ def profile_analysis(message):
     except Exception as e:
         bot.reply_to(message, f"Profil analizi yapılamadı: {str(e)}")
 
+# Abonelik işlemleri
+@bot.message_handler(commands=['abonelik'])
+def abonelik_ekle(message):
+    args = message.text.split()
+    if len(args) < 2:
+        bot.reply_to(message, "Kullanıcı adı belirtmedin kanka. Örnek: /abonelik mehmet")
+        return
+    username = args[1].strip()
+    if abone_ekle(message.chat.id, username):
+        bot.reply_to(message, f"{username} kullanıcısına başarıyla abone olundu.")
+    else:
+        bot.reply_to(message, f"Zaten {username} kullanıcısına abonesin.")
+
+# /abonelik_iptal komutu
+@bot.message_handler(commands=['abonelik_iptal'])
+def abonelikten_cik(message):
+    args = message.text.split()
+    if len(args) < 2:
+        bot.reply_to(message, "Kullanıcı adı belirtmedin kanka. Örnek: /abonelik_iptal mehmet")
+        return
+    username = args[1].strip()
+    if abone_sil(message.chat.id, username):
+        bot.reply_to(message, f"{username} kullanıcısının aboneliği iptal edildi.")
+    else:
+        bot.reply_to(message, f"{username} kullanıcısına zaten abone değilsin.")
+
+# /aboneliklerim komutu
+@bot.message_handler(commands=['aboneliklerim'])
+def abonelik_listesi_goster(message):
+    abonelikler = abonelik_listesi(message.chat.id)
+    if abonelikler:
+        joined = "\n".join(f"• {u}" for u in abonelikler)
+        bot.reply_to(message, f"Şu anda abone olduğun profiller:\n\n{joined}")
+    else:
+        bot.reply_to(message, "Hiçbir kullanıcıya abone değilsin.")
+
 # Yardım mesajı
 @bot.callback_query_handler(func=lambda call: call.data == "help")
 def help_message(call):
