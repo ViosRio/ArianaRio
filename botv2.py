@@ -70,8 +70,10 @@ def profile_analysis(message):
         button2 = types.InlineKeyboardButton(text="📕 Medya", callback_data=f"media_{username}")
         button3 = types.InlineKeyboardButton(text="👥 Takipçiler", callback_data=f"followers_{username}")
         button4 = types.InlineKeyboardButton(text="👤 Takip Ettikleri", callback_data=f"following_{username}")
+        button5 = types.InlineKeyboardButton(text="🔰 Abonelik", callback_data=f"subs_{subs}")
 
-        keyboard.add(button1, button2, button3, button4)
+
+        keyboard.add(button1, button2, button3, button4, button5)
 
         # Profil resmi ve bilgi mesajı
         bot.send_photo(
