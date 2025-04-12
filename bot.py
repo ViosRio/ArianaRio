@@ -131,7 +131,7 @@ def help_message(call):
         "[1] /story : Belirtilen kullanıcı Adının Hikayelerini İndirir.\n\n"
         "[2] /rave : Belirtilen Profil Hakkında Analiz Yapar.\n\n"
         "[3] /save : Bir Gönderi Bağlantısından Medya İndirir.\n\n"
-        "[4] /hashtag : Hastag Kazıyıcısıdır Etiketlere Göz At \n"
+        "[4] /hashtag : Hastag Kazıyıcısıdır Etiketlere Göz At \n\n"
         "Not: Gizli Profillerden Veri Çekebilmek İçin Takip Etmelisiniz."
     )
     bot.answer_callback_query(call.id)
