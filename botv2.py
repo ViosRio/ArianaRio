@@ -2,6 +2,7 @@ import requests
 import instaloader
 import telebot
 from telebot import types
+from checker import abone_ekle, abone_sil, abonelik_listesi
 
 # Telegram bot token
 TOKEN = "{BOT_TOKEN}"  # Buraya Telegram botunuzun tokenını ekleyin
@@ -70,7 +71,7 @@ def profile_analysis(message):
         button2 = types.InlineKeyboardButton(text="📕 Medya", callback_data=f"media_{username}")
         button3 = types.InlineKeyboardButton(text="👥 Takipçiler", callback_data=f"followers_{username}")
         button4 = types.InlineKeyboardButton(text="👤 Takip Ettikleri", callback_data=f"following_{username}")
-        button5 = types.InlineKeyboardButton(text="🔰 Abonelik", callback_data=f"subs_{subs}")
+        button5 = types.InlineKeyboardButton(text="🔰 Abonelik", callback_data=f"subs_{username}")
 
 
         keyboard.add(button1, button2, button3, button4, button5)
