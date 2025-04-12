@@ -106,24 +106,31 @@ def hashtag_search(message):
         bot.reply_to(message, "Lütfen bir hashtag girin.")
         return
 
-    # API URL'sini oluşturma
     url = f"https://cerenyaep.serv00.net/client/app/tokplus/data.php?explore={hashtag}"
     try:
-        # API isteği gönderme
         response = requests.get(url)
-        
-        # API yanıtını kontrol etme
         if response.status_code == 200:
-            # Eğer yanıt düz metin (HTML veya düz veri) ise
-            content = response.text  # Gelen metni alıyoruz
-            if content.strip():
-                # Gelen metni anlamlı bir şekilde kullanıcıya iletme
-                formatted_content = content.replace("<hr>", "<hr><br>")  
-                bot.reply_to(message, f"Hashtag '{hashtag}' ile ilgili sonuçlar:\n\n{formatted_content}")
+            content = response.text.strip()
+            if content:
+                # Her video bloğunu ayır
+                items = content.split('<hr>')
+                formatted = []
+                for item in items:
+                    lines = item.strip().split('<br>')
+                    block = []
+                    for line in lines:
+                        line = line.strip()
+                        if line:
+                            block.append(line)
+                    if block:
+                        formatted.append("\n".join(block))
+
+                final_result = "\n\n———\n\n".join(formatted)
+                bot.reply_to(message, f"Hashtag **{hashtag}** ile ilgili sonuçlar:\n\n{final_result}", parse_mode="Markdown")
             else:
-                bot.reply_to(message, "Veri bulunamadı veya yanıt boş.")
+                bot.reply_to(message, "Veri bulunamadı veya içerik boş.")
         else:
-            bot.reply_to(message, "API'ye erişim sağlanamadı. Lütfen tekrar deneyin.")
+            bot.reply_to(message, "API'ye erişim sağlanamadı. Tekrar dene kanki.")
     except Exception as e:
         bot.reply_to(message, f"Bir hata oluştu: {str(e)}")
 
