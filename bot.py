@@ -39,29 +39,38 @@ def start_message(message):
     )
 
 # /rave komutu - Profil analizi
-@bot.message_handler(commands=['rave'])
-def profile_analysis(message):
-    username = message.text.replace("/rave", "").strip()
-    if not username:
-        bot.reply_to(message, "Lütfen analiz için bir kullanıcı adı yazın!")
-        return
+# bot.py içindeki /rave komutu kısmına ekle:
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-    bot.reply_to(message, f"{username} adlı kullanıcı için analiz yapılıyor...")
+@bot.on_message(filters.command("rave"))
+def rave(_, message):
+    args = message.text.split()
+    if len(args) < 2:
+        return message.reply("Kullanım: /rave kullanıcıadı")
 
+    username = args[1]
     try:
-        profile = instaloader.Profile.from_username(loader.context, username)
-        
-        # Profil bilgilerini alıyoruz
-        info = (
-            f"Kullanıcı: {profile.username}\n"
-            f"Ad: {profile.full_name}\n"
-            f"Biyografi: {profile.biography}\n"
-            f"Takipçi Sayısı: {profile.followers}\n"
-            f"Takip Ettikleri: {profile.followees}\n"
-            f"Gönderiler: {profile.mediacount}\n"
-            f"Hesap Gizli mi?: {'Evet' if profile.is_private else 'Hayır'}\n"
+        user_id = cl.user_id_from_username(username)
+        info = cl.user_info(user_id)
+        caption = f"""
+**{info.full_name}** (@{info.username})
+Takipçi: {info.follower_count}
+Takip: {info.following_count}
+Gönderi: {info.media_count}
+Biyografi: {info.biography}
+"""
+        buttons = InlineKeyboardMarkup([[
+            InlineKeyboardButton("Abone Ol", callback_data=f"abone|{username}")
+        ]])
+        bot.send_photo(
+            chat_id=message.chat.id,
+            photo=info.profile_pic_url,
+            caption=caption,
+            reply_markup=buttons,
+            parse_mode="markdown"
         )
-
+    except Exception as e:
+        message.reply(f"Hata: {e}")
         # Profil resmi URL'si
         profile_picture_url = profile.get_profile_pic_url()
 
@@ -88,6 +97,28 @@ def profile_analysis(message):
         bot.reply_to(message, f"Profil analizi yapılamadı: {str(e)}")
 
 # Abonelik işlemleri
+@bot.on_callback_query()
+def callback_handler(_, query):
+    data = query.data
+    if data.startswith("abone|"):
+        username = data.split("|")[1]
+        user_id = str(query.from_user.id)
+        with open("subs.json", "r+") as f:
+            try:
+                subs = json.load(f)
+            except:
+                subs = {}
+            if user_id not in subs:
+                subs[user_id] = []
+            if username not in subs[user_id]:
+                subs[user_id].append(username)
+                f.seek(0)
+                json.dump(subs, f, indent=4)
+                f.truncate()
+                query.answer("Abonelik başarıyla eklendi!")
+            else:
+                query.answer("Zaten abonesin!")
+
 @bot.message_handler(commands=['abonelik'])
 def abonelik_ekle(message):
     args = message.text.split()
