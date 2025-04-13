@@ -11,6 +11,30 @@ CHAT_ID = "SAHIP_CHAT_ID"
 loader = instaloader.Instaloader()
 last_posts = {}
 
+def abone_ekle(user_id, username):
+    subs = load_subs()
+    if user_id not in subs:
+        subs[user_id] = []
+    if username not in subs[user_id]:
+        subs[user_id].append(username)
+        with open("subs.json", "w") as f:
+            json.dump(subs, f)
+        return True
+    return False
+
+def abone_sil(user_id, username):
+    subs = load_subs()
+    if user_id in subs and username in subs[user_id]:
+        subs[user_id].remove(username)
+        with open("subs.json", "w") as f:
+            json.dump(subs, f)
+        return True
+    return False
+
+def abonelik_listesi(user_id):
+    subs = load_subs()
+    return subs.get(user_id, [])
+
 def get_last_post(username):
     try:
         profile = instaloader.Profile.from_username(loader.context, username)
