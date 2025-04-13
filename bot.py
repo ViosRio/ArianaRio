@@ -42,35 +42,36 @@ def start_message(message):
 # bot.py içindeki /rave komutu kısmına ekle:
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-@bot.on_message(filters.command("rave"))
-def rave(_, message):
+@bot.message_handler(commands=['rave'])
+def rave_command(message):
     args = message.text.split()
     if len(args) < 2:
-        return message.reply("Kullanım: /rave kullanıcıadı")
+        bot.reply_to(message, "Kullanım: /rave kullanıcıadı")
+        return
 
     username = args[1]
     try:
-        user_id = cl.user_id_from_username(username)
-        info = cl.user_info(user_id)
+        profile = instaloader.Profile.from_username(loader.context, username)
         caption = f"""
-**{info.full_name}** (@{info.username})
-Takipçi: {info.follower_count}
-Takip: {info.following_count}
-Gönderi: {info.media_count}
-Biyografi: {info.biography}
+**{profile.full_name}** (@{profile.username})
+Takipçi: {profile.followers}
+Takip: {profile.followees}
+Gönderi: {profile.mediacount}
+Biyografi: {profile.biography}
 """
-        buttons = InlineKeyboardMarkup([[
-            InlineKeyboardButton("Abone Ol", callback_data=f"abone|{username}")
-        ]])
+        keyboard = types.InlineKeyboardMarkup()
+        button = types.InlineKeyboardButton("🔰 Abonelik", callback_data=f"abone|{username}")
+        keyboard.add(button)
+
         bot.send_photo(
             chat_id=message.chat.id,
-            photo=info.profile_pic_url,
+            photo=profile.profile_pic_url,
             caption=caption,
-            reply_markup=buttons,
-            parse_mode="markdown"
+            reply_markup=keyboard,
+            parse_mode="Markdown"
         )
     except Exception as e:
-        message.reply(f"Hata: {e}")
+        bot.reply_to(message, f"Hata: {e}")
         # Profil resmi URL'si
         profile_picture_url = profile.get_profile_pic_url()
 
