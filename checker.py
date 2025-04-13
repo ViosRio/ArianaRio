@@ -1,26 +1,23 @@
 # checker.py
-
+import os
 import json
 import time
+import instaloader
 import requests
-from instagrapi import Client
-from datetime import datetime
-import os
 
 BOT_TOKEN = "TELEGRAM_BOT_TOKENIN"
 CHAT_ID = "SAHIP_CHAT_ID"
 
-cl = Client()
-cl.login("INSTAGRAM_KULLANICI", "SIFRE")
-
+loader = instaloader.Instaloader()
 last_posts = {}
 
 def get_last_post(username):
     try:
-        user_id = cl.user_id_from_username(username)
-        posts = cl.user_medias(user_id, 1)
-        if posts:
-            return posts[0].id, posts[0].caption_text, posts[0].thumbnail_url
+        profile = instaloader.Profile.from_username(loader.context, username)
+        posts = profile.get_posts()
+        post = next(posts, None)
+        if post:
+            return post.mediaid, post.caption, post.url
     except Exception as e:
         print(f"[{username}] Post alınamadı: {e}")
     return None, None, None
