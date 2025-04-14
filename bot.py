@@ -73,12 +73,12 @@ def callback_query(call):
     if data == "help":
         bot.send_message(call.message.chat.id,
             "Komutlar:\n"
-            "/story kullanıcıadı - Hikayeleri gösterir\n"
-            "/rave kullanıcıadı - Profil analiz eder\n"
-            "/save link - Gönderi indirir\n"
-            "/hashtag etiket - Hashtag kazıyıcısı\n"
-            "/abonelik kullanıcıadı - Abone ol\n"
-            "/abonelik_iptal kullanıcıadı - Abonelikten çık\n"
+            "/story kullanıcıadı - Hikayeleri gösterir\n\n"
+            "/rave kullanıcıadı - Profil analiz eder\n\n"
+            "/save link - Gönderi indirir\n\n"
+            "/hashtag etiket - Hashtag kazıyıcısı\n\n"
+            "/abonelik kullanıcıadı - Abone ol\n\n"
+            "/abonelik_iptal kullanıcıadı - Abonelikten çık\n\n"
             "/aboneliklerim - Abonelik listeni gösterir"
         )
 
@@ -109,10 +109,10 @@ def callback_query(call):
 def abonelik_ekle_handler(message):
     args = message.text.split()
     if len(args) < 2:
-        return bot.reply_to(message, "Örnek kullanım: /abonelik mehmet")
+        return bot.reply_to(message, "kullanım: \n\n [ /abonelik cerenlovely ]")
     username = args[1]
     if abone_ekle(message.chat.id, username):
-        bot.reply_to(message, f"{username} kullanıcısına abone olundu.")
+        bot.reply_to(message, f"✅DURUM \n\n {username} kullanıcısına Abone Olundu.")
     else:
         bot.reply_to(message, f"{username} zaten listende.")
 
@@ -120,7 +120,7 @@ def abonelik_ekle_handler(message):
 def abonelik_iptal_handler(message):
     args = message.text.split()
     if len(args) < 2:
-        return bot.reply_to(message, "Örnek kullanım: /abonelik_iptal mehmet")
+        return bot.reply_to(message, "kullanım: \n\n [ /abonelik_iptal cerenlovely ]")
     username = args[1]
     if abone_sil(message.chat.id, username):
         bot.reply_to(message, f"{username} aboneliğin iptal edildi.")
