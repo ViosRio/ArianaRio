@@ -1,101 +1,57 @@
-import os
 import json
-import time
-import instaloader
-import requests
+import os
 
-BOT_TOKEN = "TELEGRAM_BOT_TOKENIN"
-CHAT_ID = "8141229305"
-
-loader = instaloader.Instaloader()
-last_posts = {}
+DOSYA_YOLU = "subs.json"
 
 def abone_ekle(user_id, username):
-    subs = load_subs()
-    if user_id not in subs:
-        subs[user_id] = []
-    if username not in subs[user_id]:
-        subs[user_id].append(username)
-        save_subs(subs)
-        return True
-    return False
+    user_id = str(user_id)
+    try:
+        if not os.path.exists(DOSYA_YOLU):
+            with open(DOSYA_YOLU, "w") as f:
+                json.dump({}, f)
+
+        with open(DOSYA_YOLU, "r+") as f:
+            data = json.load(f)
+            if user_id not in data:
+                data[user_id] = []
+            if username not in data[user_id]:
+                data[user_id].append(username)
+                f.seek(0)
+                json.dump(data, f, indent=4)
+                f.truncate()
+                return True
+            return False
+    except Exception as e:
+        print(f"Hata (abone_ekle): {e}")
+        return False
 
 def abone_sil(user_id, username):
-    subs = load_subs()
-    if user_id in subs and username in subs[user_id]:
-        subs[user_id].remove(username)
-        save_subs(subs)
-        return True
-    return False
+    user_id = str(user_id)
+    try:
+        if not os.path.exists(DOSYA_YOLU):
+            return False
+
+        with open(DOSYA_YOLU, "r+") as f:
+            data = json.load(f)
+            if user_id in data and username in data[user_id]:
+                data[user_id].remove(username)
+                f.seek(0)
+                json.dump(data, f, indent=4)
+                f.truncate()
+                return True
+            return False
+    except Exception as e:
+        print(f"Hata (abone_sil): {e}")
+        return False
 
 def abonelik_listesi(user_id):
-    subs = load_subs()
-    return subs.get(user_id, [])
-
-def load_subs():
-    if not os.path.exists("subs.json"):
-        return {}
-    with open("subs.json", "r") as f:
-        return json.load(f)
-
-def save_subs(subs):
-    with open("subs.json", "w") as f:
-        json.dump(subs, f, indent=2)
-
-def get_last_post(username):
+    user_id = str(user_id)
     try:
-        profile = instaloader.Profile.from_username(loader.context, username)
-        posts = profile.get_posts()
-        post = next(posts, None)
-        if post:
-            media_id = str(post.mediaid)
-            caption = post.caption or "Açıklama yok."
-            media_url = post.url
-            return media_id, caption, media_url
+        if not os.path.exists(DOSYA_YOLU):
+            return []
+        with open(DOSYA_YOLU, "r") as f:
+            data = json.load(f)
+            return data.get(user_id, [])
     except Exception as e:
-        print(f"[{username}] Post alınamadı: {e}")
-    return None, None, None
-
-def send_telegram_message(caption, image_url):
-    try:
-        message = f"**Yeni Gönderi**:\n\n{caption}"
-        data = {
-            "chat_id": CHAT_ID,
-            "caption": message,
-            "parse_mode": "Markdown"
-        }
-
-        files = {}
-        if image_url:
-            response = requests.get(image_url, stream=True)
-            if response.status_code == 200:
-                files["photo"] = response.raw
-
-        requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-            data=data,
-            files=files if files else None
-        )
-
-    except Exception as e:
-        print(f"Telegram mesaj hatası: {e}")
-
-def check_loop():
-    print("[!] Takip başlatıldı. Çıkmak için Ctrl+C.")
-    while True:
-        try:
-            subs = load_subs()
-            for user_id, usernames in subs.items():
-                for username in usernames:
-                    post_id, caption, image = get_last_post(username)
-                    if post_id:
-                        if username not in last_posts or post_id != last_posts[username]:
-                            print(f"[{username}] Yeni gönderi tespit edildi.")
-                            send_telegram_message(f"{username}: {caption}", image)
-                            last_posts[username] = post_id
-        except Exception as e:
-            print(f"Genel hata: {e}")
-        time.sleep(120)
-
-if __name__ == "__main__":
-    check_loop()
+        print(f"Hata (abonelik_listesi): {e}")
+        return []
