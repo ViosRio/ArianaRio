@@ -73,11 +73,11 @@ def callback_query(call):
     if data == "help":
         bot.send_message(call.message.chat.id,
             "Komutlar:\n"
-            "🔰 MADENCİLİK 🔰\n"             
+            "🔰 MADENCİLİK 🔰\n\n"             
             "/story kullanıcıadı - Hikayeleri gösterir\n\n"
             "/rave kullanıcıadı - Profil analiz eder\n\n"
             "/save link - Gönderi indirir\n\n"
-            "❕ KULLANICI ❕\n"             
+            "❕ KULLANICI ❕\n\n"             
             "/hashtag etiket - Hashtag kazıyıcısı\n\n"
             "/abonelik kullanıcıadı - Abone ol\n\n"
             "/abonelik_iptal kullanıcıadı - Abonelikten çık\n\n"
