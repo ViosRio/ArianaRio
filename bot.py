@@ -73,9 +73,11 @@ def callback_query(call):
     if data == "help":
         bot.send_message(call.message.chat.id,
             "Komutlar:\n"
+            "🔰 MADENCİLİK 🔰\n"             
             "/story kullanıcıadı - Hikayeleri gösterir\n\n"
             "/rave kullanıcıadı - Profil analiz eder\n\n"
             "/save link - Gönderi indirir\n\n"
+            "❕ KULLANICI ❕\n"             
             "/hashtag etiket - Hashtag kazıyıcısı\n\n"
             "/abonelik kullanıcıadı - Abone ol\n\n"
             "/abonelik_iptal kullanıcıadı - Abonelikten çık\n\n"
@@ -86,7 +88,7 @@ def callback_query(call):
         username = data.split("|")[1]
         user_id = str(call.from_user.id)
         try:
-            with open("subs.json", "r+") as f:
+            with open("data/subs.py", "r+") as f:
                 try:
                     subs = json.load(f)
                 except:
@@ -98,9 +100,9 @@ def callback_query(call):
                     f.seek(0)
                     json.dump(subs, f, indent=4)
                     f.truncate()
-                    bot.answer_callback_query(call.id, "Abonelik eklendi.")
+                    bot.answer_callback_query(call.id, "✅ DURUM : \n\n Abonelik Eklendi.")
                 else:
-                    bot.answer_callback_query(call.id, "Zaten abonesin.")
+                    bot.answer_callback_query(call.id, "✅ DURUM : \n\n Zaten Abonesin.")
         except Exception as e:
             bot.answer_callback_query(call.id, f"Hata: {e}")
 
@@ -112,9 +114,9 @@ def abonelik_ekle_handler(message):
         return bot.reply_to(message, "kullanım: \n\n [ /abonelik cerenlovely ]")
     username = args[1]
     if abone_ekle(message.chat.id, username):
-        bot.reply_to(message, f"✅DURUM \n\n {username} kullanıcısına Abone Olundu.")
+        bot.reply_to(message, f"✅ DURUM :\n\n {username} kullanıcısına Abone Olundu.")
     else:
-        bot.reply_to(message, f"{username} zaten listende.")
+        bot.reply_to(message, f"✅ DURUM :\n\n {username} Zaten Listende.")
 
 @bot.message_handler(commands=["abonelik_iptal"])
 def abonelik_iptal_handler(message):
@@ -123,9 +125,9 @@ def abonelik_iptal_handler(message):
         return bot.reply_to(message, "kullanım: \n\n [ /abonelik_iptal cerenlovely ]")
     username = args[1]
     if abone_sil(message.chat.id, username):
-        bot.reply_to(message, f"{username} aboneliğin iptal edildi.")
+        bot.reply_to(message, f"✅ DURUM :\n\n {username} Aboneliğin İptal Edildi.")
     else:
-        bot.reply_to(message, f"{username} listende yok.")
+        bot.reply_to(message, f"📛 HATA :\n\n {username} Listende Yok.")
 
 @bot.message_handler(commands=["aboneliklerim"])
 def abonelik_listesi_handler(message):
@@ -134,14 +136,14 @@ def abonelik_listesi_handler(message):
         liste = "\n".join([f"• {a}" for a in abonelikler])
         bot.reply_to(message, f"Aboneliklerin:\n{liste}")
     else:
-        bot.reply_to(message, "Hiçbir kullanıcıya abone değilsin.")
+        bot.reply_to(message, "📛 HATA : \n\n Listen Boş.")
 
 # /hashtag
 @bot.message_handler(commands=["hashtag"])
 def hashtag_handler(message):
     tag = message.text.replace("/hashtag", "").strip()
     if not tag:
-        return bot.reply_to(message, "Hashtag belirtmedin.")
+        return bot.reply_to(message, "KULLANIM : \n\n /hashtag [ ceren ]")
     
     try:
         url = f"https://cerenyaep.serv00.net/client/app/tokplus/data.php?explore={tag}"
@@ -151,7 +153,7 @@ def hashtag_handler(message):
             result = "\n\n———\n\n".join(["\n".join(b.split("<br>")).strip() for b in blocks])
             bot.reply_to(message, f"**#{tag}** hakkında:\n\n{result}", parse_mode="Markdown")
         else:
-            bot.reply_to(message, "Sonuç bulunamadı.")
+            bot.reply_to(message, "📛 HATA : \n\n Sonuç Bulunamadı.")
     except Exception as e:
         bot.reply_to(message, f"Hata: {e}")
 
